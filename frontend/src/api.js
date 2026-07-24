@@ -1,11 +1,11 @@
 import axios from 'axios';
 
-
 const API = axios.create({
-  baseURL: 'https://mern-project-883z.onrender.com'
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    (import.meta.env.DEV ? '/api' : 'https://mern-project-883z.onrender.com/api'),
 });
 
-// Yeh middleware har request ke sath JWT token automatic bhej dega (agar login hai toh)
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -13,5 +13,19 @@ API.interceptors.request.use((req) => {
   }
   return req;
 });
+
+API.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    if (err.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(err);
+  }
+);
 
 export default API;

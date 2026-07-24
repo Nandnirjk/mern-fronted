@@ -14,9 +14,11 @@ const Dashboard = () => {
     try {
       const { data } = await API.get('/projects/my-projects');
       setProjects(data);
-      setLoading(false);
     } catch (err) {
-      console.error("Projects load karne mein dikkat aayi:", err);
+      if (err.response?.status !== 401) {
+        console.error('Failed to load projects:', err);
+      }
+    } finally {
       setLoading(false);
     }
   };
